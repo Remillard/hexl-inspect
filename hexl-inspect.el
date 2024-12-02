@@ -221,6 +221,8 @@ Structure heavily borrowed from `treesit-explore-mode' in
 `treesit.el'"
   :init-value nil
   :lighter " Inspection"
+  :keymap
+  (list (cons (kbd "C-c h") 'hexl-inspect-toggle-endian))
   ;; Body
   (if hexl-inspect-mode
       ;; Actions when asserting hexl-inspect-mode including setting up a buffer
@@ -254,11 +256,5 @@ Structure heavily borrowed from `treesit-explore-mode' in
                  #'hexl-inspect--kill-inspection-buffer t)
     ;; Destroy buffer
     (hexl-inspect--kill-inspection-buffer)))
-
-;; Keymap for this mode
-(defvar hexl-inspect-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c h") 'hexl-inspect-toggle-endian)
-    map))
 
 (provide 'hexl-inspect)
