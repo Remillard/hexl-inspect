@@ -24,11 +24,14 @@
 
 ;; Variables for inspection behavior set up per parent buffer.
 (defvar-local hexl-inspect--big-endian-p nil
-  "The boolean variable hexl-inspect--big-endian-p is used to set the endianness for hexl-inspect.")
+  "The boolean variable HEXL-INSPECT--BIG-ENDIAN-P is used to set
+the endianness for hexl-inspect.")
 (defvar-local hexl-inspect--endian-str nil
-  "The string variable hexl-inspect--endian-str is used for the hexl-inspect display.")
+  "The string variable HEXL-INSPECT--ENDIAN-STR is used for the
+hexl-inspect display.")
 (defvar-local hexl-inspect--data-buf nil
-  "Buffer used to display the data inspection results.")
+  "HEXL-INSPECT--DATA-BUF defines the buffer used to display the
+data inspection results.")
 (defvar-local hexl-inspect--inspection-refresh-timer nil
   "Timer for refreshing the display buffer.")
 
@@ -51,7 +54,10 @@
 ;; want to deconstruct for inspection at any one time.  Intended to be called in
 ;; the hexl-mode buffer.
 (defun hexl-inspect--get-hex-str (big-endian-p)
-  "Returns a hexadecimal string of 8 bytes with specified endian-ness."
+  "Returns a hexadecimal string of 8 bytes with specified endian-ness
+in the boolean BIG-ENDIAN-P.  BIG-ENDIAN-P truth will result in a
+big-endian interpretation.  BIG-ENDIAN-P nil will results in a
+little-endian interpretation."
   (save-excursion
     ;; Predefining small string to fill in rather than continue creating new
     ;; strings with the acquisition of every concatenation (prior method).
@@ -69,12 +75,12 @@
         (hexl-forward-char 1))
       word-str)))
 
-;; This function is used to subdivde a 16 character string of hex characters
+;; This function is used to subdivide a 16 character string of hex characters
 ;; based on the number of nibbles desired and the endianness the string
-;; represents.  (See TODO list -- not entirely sure this is exactly
-;; what I want in all circumstances.)
+;; represents.
 (defun hexl-inspect--word-str (64bit-word-str nibbles big-endian-p)
-  "Based on endianness, return the string of the number nibbles under point."
+  "Based on the boolean BIG-ENDIAN-P defining the current endianness,
+return a string of the number of NIBBLES from 64BIT-WORD-STR."
   (if big-endian-p
       (substring 64bit-word-str 0 nibbles)
     (substring 64bit-word-str (- 16 nibbles) nil)))
@@ -82,7 +88,8 @@
 ;; Given an unsigned integer value at a particular width, return the signed
 ;; two's complement value of that value.
 (defun hexl-inspect--twos-complement (number bit-width)
-  "Return the two's complement interpretation of NUMBER with given BIT-WIDTH, if applicable."
+  "Return the two's complement interpretation of NUMBER with given
+BIT-WIDTH, if applicable."
   (let* ((max-value (expt 2 bit-width))
          (half-max (/ max-value 2)))
     (if (>= number half-max)
@@ -92,7 +99,8 @@
 ;; Converting a nibble character to a binary string is a helper function to
 ;; hexl-hex-str-to-bin.
 (defun hexl-inspect--nibble-str-to-bin (nib-char)
-  "Return a string containing the binary representation of a nibble."
+  "Return a string containing the binary representation of the hex
+nibbled NIB-CHAR."
   (pcase nib-char
     ('?0 "0000")
     ('?1 "0001")
@@ -115,7 +123,8 @@
 ;; Receives a string of some arbitrary length comprised of hex characters and
 ;; returns a string that contains the binary representation of the hex value.
 (defun hexl-inspect--hex-str-to-bin (hex-str)
-  "Return a string containing the binary representation of the hexadecimal string."
+  "Return a string containing the binary representation of the
+hexadecimal string HEX-STR."
   (let* ((bin-str-len (* 4 (length hex-str)))
          ;; Predefining string length in order to avoid multiple string creations.
          (bin-str (make-string bin-str-len ?0)))
@@ -125,6 +134,10 @@
 
 ;; From Stack Overflow on converting string of hex into ASCII
 (defun hexl-inspect--decode-hex-string (hex-string)
+  "Return a string of characters corresponding to the hex bytes in
+HEX-STRING.  For example, hex string '43484950' would return
+'CHIP'.  Unprintable characters will be returned as Elisp
+character formats."
   (let ((res nil))
     (dotimes (i (/ (length hex-string) 2) (apply #'concat (reverse res)))
       (let ((hex-byte (substring hex-string (* 2 i) (* 2 (+ i 1)))))
