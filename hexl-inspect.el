@@ -9,7 +9,7 @@
 ;; conjunction with a buffer set to `hexl-mode'.  When activated, the minor mode
 ;; will create a data inspection buffer and window and display to the side of
 ;; the `hexl-mode' buffer.  As the point moves around in the parent buffer, the
-;; contents will update to reflect the point's position.
+;; contents will update to reflect the data at that position.
 ;;
 ;; The mode depends on the variable state of `hexl-inspect--big-endian-p'
 ;; which determines how the data is interpreted.
@@ -56,7 +56,7 @@ data inspection results.")
 (defun hexl-inspect--get-hex-str (big-endian-p)
   "Returns a hexadecimal string of 8 bytes with specified endian-ness
 in the boolean BIG-ENDIAN-P.  BIG-ENDIAN-P truth will result in a
-big-endian interpretation.  BIG-ENDIAN-P nil will results in a
+big-endian interpretation.  BIG-ENDIAN-P nil will result in a
 little-endian interpretation."
   (save-excursion
     ;; Predefining small string to fill in rather than continue creating new
@@ -256,7 +256,7 @@ Structure heavily borrowed from `treesit-explore-mode' in
         (add-hook 'kill-buffer-hook
                   #'hexl-inspect--kill-inspection-buffer 0 t)
         ;; Telling `desktop-save' to not save explorer buffers.
-        ;; (From `treesit.el' in `treesit-explor-mode')
+        ;; (From `treesit.el' in `treesit-explore-mode')
         (when (boundp 'desktop-modes-not-to-save)
           (unless (memq 'hexl-inspect--inspecting-mode
                         desktop-modes-not-to-save)
