@@ -1,0 +1,85 @@
+* ~hexl-inspect~
+
+This package implements a minor mode named ~hexl-inspect-mode~ to be used in
+conjunction with a buffer set to ~hexl-mode~.  When activated, the minor mode will
+create a data inspection buffer, window, and display to the side of the
+~hexl-mode~ buffer.  As the point moves around in the parent buffer, the contents
+will update to reflect the point's position.
+
+The mode depends on the variable state of ~hexl-inspect--big-endian-p~ which
+determines how the data under the point is to be interpreted.
+
+The automated update structure and the mode structure was patterned after the
+explore mode in ~treesit-explore-mode~ in ~treesit.el~ as that was the closest
+analog to what I was attempting to accomplish.
+
+* Setup
+
+This package is not available on any package site as of yet, however may be
+cloned and loaded with the following code (and alter the ~load-path~ as needed to
+match your local directories.)
+
+#+begin_src elisp
+  (use-package hexl-inspect
+    :load-path "~/.emacs.d/site-lisp/hexl-inspect")
+#+end_src
+
+* Keybinds
+
+There's really only one keybind associated with the minor mode.
+
+| Keybind | Function                                       |
+| ~C-c h~   | Toggles the endianness of the data inspection. |
+
+It may be useful to add a keybind to ~hexl-mode~ to activate the data inspection.
+
+#+begin_src elisp
+  (add-hook 'hexl-mode-hook
+            (lambda () (define-key hexl-mode-map (kbd "C-c i") 'hexl-inspect-mode)))
+#+end_src
+
+* Usage
+
+It should be as easy as activating the mode and moving the point around.  A buffer
+will appear alongside the ~hexl-mode~ buffer with the following contents (as a sample).
+The mode will change when toggled via ~C-c h~.
+
+#+begin_example
+-------------------- Data Inspection -------------------
+--------------------  Little endian  -------------------
+Byte (Hex):           0x48
+Byte (Binary):        0b01001000
+uint8:                72
+int8:                 72
+char:                 H
+
+16-bit word (Hex):    0x4348
+16-bit word (Binary): 0b0100001101001000
+uint16:               17224
+int16:                17224
+chars:                CH
+
+32-bit word (Hex):    0x43594348
+32-bit word (Binary): 0b01000011010110010100001101001000
+uint32:               1129923400
+int32:                1129923400
+chars:                CYCH
+
+64-bit word (Hex):    0x000f424143594348
+uint64:               4294972720890696
+int64:                4294972720890696
+--------------------------------------------------------
+#+end_example
+
+* To Do List
+
+At the moment, this suits my needs fairly well.  I suspect before it's released
+for general consumption some additional safety measures may need to be added.
+It's also not wildly aesthetically appealing so that might be something to think
+about.  I welcome suggestions on how to improve the module.
+
+* Acknowledgements
+
+I deeply appreciate the aid rendered by ~/u/artherno1~ on the Emacs subreddit in
+discussing the intricaties of string and buffer manipulation in Elisp.
+
