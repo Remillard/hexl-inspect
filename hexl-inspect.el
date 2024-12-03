@@ -118,7 +118,7 @@ nibbled NIB-CHAR."
     ((or '?d '?D) "1101")
     ((or '?e '?E) "1110")
     ((or '?f '?F) "1111")
-    (- "-NaN")))
+    (_ "-NaN")))
 
 ;; Receives a string of some arbitrary length comprised of hex characters and
 ;; returns a string that contains the binary representation of the hex value.
@@ -218,6 +218,7 @@ character formats."
 
 ;; Defining a minor mode that may be able to define when certain automatic
 ;; behaviors should occur (like updating the inspection panel.)
+;;;###autoload
 (define-minor-mode hexl-inspect-mode
   "Toggle Hexl Data Inspection Mode
 Interatively with no argument, this command toggles the mode.  A
