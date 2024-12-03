@@ -132,16 +132,24 @@ hexadecimal string HEX-STR."
       (store-substring bin-str (* 4 idx) (hexl-inspect--nibble-str-to-bin (aref hex-str idx))))
     bin-str))
 
-;; From Stack Overflow on converting string of hex into ASCII
+;; This function used for the character decode of the string.  Rewritten
+;; to avoid former byte-compilation warning about an unused lexical binding
+;; in the `dotimes' function.  Not entirely sure why it thought it wasn't
+;; used, but this dodges that warning.
 (defun hexl-inspect--decode-hex-string (hex-string)
   "Return a string of characters corresponding to the hex bytes in
-HEX-STRING.  For example, hex string '43484950' would return
-'CHIP'.  Unprintable characters will be returned as Elisp
-character formats."
-  (let ((res nil))
-    (dotimes (i (/ (length hex-string) 2) (apply #'concat (reverse res)))
-      (let ((hex-byte (substring hex-string (* 2 i) (* 2 (+ i 1)))))
-        (push (format "%c" (string-to-number hex-byte 16)) res)))))
+HEX-STRING.  For example, hex string `43484950' would return
+`CHIP'.  Will assume an even number of characters in the string,
+and if odd will fail to address the odd ending character.
+Unprintable characters will be returned as Elisp character
+formats."
+  (let* ((num-chars (/ (length hex-string) 2))
+         (result-str (make-string num-chars ?.)))
+    (dotimes (i num-chars)
+      (let* ((byte-str (substring hex-string (* 2 i) (* 2 (+ 1 i))))
+             (byte-char (format "%c" (string-to-number byte-str 16))))
+        (store-substring result-str i byte-char)))
+    result-str))
 
 ;; This is the ongoing buffer refresh version of the original inspection
 ;; command.
@@ -224,7 +232,7 @@ character formats."
 Interatively with no argument, this command toggles the mode.  A
 positive prefix argument enables the mode, any other prefix
 argument disables it.  From Lisp, argument omitted or nil enables
-the mode.  'toggle' toggles the state.
+the mode.  `toggle' toggles the state.
 
 When Hexl Data Inspection Mode is enabled, for buffers where
 hexl-mode is set, this mode will create a data inspection panel

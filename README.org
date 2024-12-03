@@ -71,7 +71,7 @@ int64:                4294972720890696
 --------------------------------------------------------
 #+end_example
 
-* To Do List
+* To Do List [1/5]
 
 At the moment, this suits my needs fairly well.  I suspect before it's released
 for general consumption some additional safety measures may need to be added.
@@ -79,12 +79,12 @@ It's also not wildly aesthetically appealing so that might be something to think
 about.  I welcome suggestions on how to improve the module.
 
 Current things to address:
-- Does not compile cleanly.  Investigate compilation and address warnings/errors
-- Implement more customizable parameters (timer, output products, etc.)
-- Create keybind to bring the buffer back after a user hits `q`.
-- Possibly create a keybind for dismissing the buffer like `q` because the point
+- [X] Does not compile cleanly.  Investigate compilation and address warnings/errors
+- [ ] Implement more customizable parameters (timer, output products, etc.)
+- [ ] Create keybind to bring the buffer back after a user hits ~q~.
+- [ ] Possibly create a keybind for dismissing the buffer like ~q~ because the point
   is actually in the parent buffer for operations.
-- Detect when the point was placed on the second nibble of an address and
+- [ ] Detect when the point was placed on the second nibble of an address and
   account for that when performing the character acquisition (foolproofing)
 
 * Acknowledgements
