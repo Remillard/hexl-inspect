@@ -64,6 +64,9 @@ little-endian interpretation."
     (let ((word-str (make-string 16 ?0))
           (byte-str (make-string 2 ?0))
           (byte-ptr 0))
+      ;; Issuing a zero forward character to make sure the point moves
+      ;; to the beginning of a byte at the current address.
+      (hexl-forward-char 0)
       (dotimes (ptr-idx 8)
         (setq byte-str (buffer-substring-no-properties (point) (+ 2 (point))))
         (if big-endian-p
