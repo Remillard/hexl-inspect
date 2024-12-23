@@ -1,3 +1,7 @@
+#+TITLE: hexl-inspect.el
+#+AUTHOR: Mark Norton
+#+PROPERTY: LOGGING nil
+
 * ~hexl-inspect~
 
 This package implements a minor mode named ~hexl-inspect-mode~ to be used in
@@ -13,23 +17,26 @@ The automated update structure and the mode structure was patterned after the
 explore mode in ~treesit-explore-mode~ in ~treesit.el~ as that was the closest
 analog to what I was attempting to accomplish.
 
-* Setup
+* Installation
 
-This package is not available on any package site as of yet, however may be
-cloned and loaded with the following code (and alter the ~load-path~ as needed to
-match your local directories.)
+** MELPA
+
+This package is not yet available at MELPA.
+
+** Manual
+
+1. Clone the repository to a location of your choice.  The examples
+   provided will assume ~/.emacs.d/site-lisp/hexl-inspect.
+2. Load the package as part of initialization, such as:
 
 #+begin_src elisp
   (use-package hexl-inspect
     :load-path "~/.emacs.d/site-lisp/hexl-inspect")
 #+end_src
 
-* Keybinds
+* Usage
 
-There's currently only one keybind associated with the minor mode.
-
-| Keybind | Function                                       |
-| ~C-c h~   | Toggles the endianness of the data inspection. |
+** Activation
 
 It may be useful to add a keybind to ~hexl-mode~ to activate the data inspection.
 
@@ -38,7 +45,12 @@ It may be useful to add a keybind to ~hexl-mode~ to activate the data inspection
             (lambda () (define-key hexl-mode-map (kbd "C-c i") 'hexl-inspect-mode)))
 #+end_src
 
-* Usage
+** Keybinds
+
+| Keybind | Function                                       |
+| ~C-c h~   | Toggles the endianness of the data inspection. |
+
+** Using hexl-inspect
 
 It should be as easy as activating the mode and moving the point around.  A buffer
 will appear alongside the ~hexl-mode~ buffer with the following contents (as a sample).
@@ -63,7 +75,7 @@ chars:                CH
 32-bit word (Binary): 0b01000011010110010100001101001000
 uint32:               1129923400
 int32:                1129923400
-chars:                CYCH
+
 
 64-bit word (Hex):    0x000f424143594348
 uint64:               4294972720890696
@@ -71,7 +83,14 @@ int64:                4294972720890696
 --------------------------------------------------------
 #+end_example
 
-* To Do List [2/5]
+* Change Log
+
+| Version | Description                            |
+| 0.1-pre | Initial release with various clean up. |
+
+* Development
+
+** To Do List [2/5]
 
 At the moment, this suits my needs fairly well.  I suspect before it's released
 for general consumption some additional safety measures may need to be added.
@@ -88,8 +107,6 @@ Current things to address:
 - [X] Detect when the point was placed on the second nibble of an address and
   account for that when performing the character acquisition (foolproofing)
 
-* Acknowledgements
+* License
 
-I deeply appreciate the aid rendered by ~/u/artherno1~ on the Emacs subreddit in
-discussing the intricaties of string and buffer manipulation in Elisp.
-
+GPLv3

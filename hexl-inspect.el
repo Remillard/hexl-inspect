@@ -1,28 +1,76 @@
 ;;; hexl-inspect.el --- A data inspection minor mode for hexl-mode -*- lexical-binding: t -*-
-;;
+
+;; Copyright (C) 2024 Mark Norton
+
 ;; Author: Mark Norton <remillard@gmail.com>
+;; URL: https://github.com/Remillard/hexl-inspect
+;; Version: 0.1-pre
 ;; Keywords: hexl, data
-;;
+
+;; This file is not part of GNU Emacs.
+
+;; This program is free software; you can redistribut it and/or modify it under
+;; the terms of the GNU General Public License as published by the Free Software
+;; Foundation, either version 3 of the License, or (at your option) any later
+;; version.
+
+;; This program is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANT; without even the implied warranty of MERCHANTABILITY or FITNESS
+;; FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+;; details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>
+
 ;;; Commentary:
-;;
+
 ;; This package implements a minor mode named `hexl-inspect-mode' to be used in
 ;; conjunction with a buffer set to `hexl-mode'.  When activated, the minor mode
 ;; will create a data inspection buffer and window and display to the side of
 ;; the `hexl-mode' buffer.  As the point moves around in the parent buffer, the
 ;; contents will update to reflect the data at that position.
-;;
+
 ;; The mode depends on the variable state of `hexl-inspect--big-endian-p'
 ;; which determines how the data is interpreted.
-;;
+
 ;; The automated update structure and mode was patterened after the explore
 ;; mode in `treesit-explore-mode' in `treesit.el'.
-;; 
-;;; TODO 
-;;
-;; * Validation, foolproofing
-;;   
 
-;; Variables for inspection behavior set up per parent buffer.
+;;;; Installation
+
+;;;;; MELPA
+
+;; This package is not yet available at MELPA.
+
+;;;;; Manual
+
+;; 1. Clone the repository to a location of your choice.  The examples
+;;    provided will assume ~/.emacs.d/site-lisp/hexl-inspect/.
+;; 2. Load the package as part of initialization, such as:
+
+;; (use-package hexl-inspect
+;;   :load-path "~/.emacs.d/site-lisp/hexl-inspect")
+
+;;;; Usage
+
+;; This is a minor mode to hexl-mode so should be used with that in mind.
+;; It may be useful to add a keybind to hexl-mode to activate the data
+;; inspection, such as:
+
+;; (add-hook 'hexl-mode-hook
+;;           (lambda () (define-key hexl-mode-map (kbd "C-c i") 'hexl-inspect-mode)))
+
+;;;;; Keybinds
+
+;; Keybind     Function
+;; C-c h       Toggles the endianness of the data inspection
+
+;;; TODO 
+
+;; * Validation, foolproofing
+
+;;;; Variables
+;; Local variables for inspection behavior set up per parent buffer.
 (defvar-local hexl-inspect--big-endian-p nil
   "The boolean variable HEXL-INSPECT--BIG-ENDIAN-P is used to set
 the endianness for hexl-inspect.")
@@ -37,7 +85,7 @@ data inspection results.")
 
 (defvar hexl-inspect-mode)
 
-
+;;;; Functions
 ;; This function toggles the state of the endianness
 (defun hexl-inspect-toggle-endian ()
   "Alters the contents of the endianness variables."
@@ -227,6 +275,8 @@ formats."
   "Major mode for displaying hexl data inspection results."
   nil)
 
+;;;; Commands
+
 ;; Defining a minor mode that may be able to define when certain automatic
 ;; behaviors should occur (like updating the inspection panel.)
 ;;;###autoload
@@ -282,4 +332,8 @@ Structure heavily borrowed from `treesit-explore-mode' in
     ;; Destroy buffer
     (hexl-inspect--kill-inspection-buffer)))
 
+;;;; Footer
+
 (provide 'hexl-inspect)
+
+;;; hexl-inspect.el ends here
