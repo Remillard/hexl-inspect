@@ -65,11 +65,23 @@
 ;; Keybind     Function
 ;; C-c h       Toggles the endianness of the data inspection
 
-;;; TODO 
+;;; Change log
 
-;; * Validation, foolproofing
+;; 0.1-pre    Initial release
+
+;;;; TODO 
+
+;; * Implement more customizable parameters (timer, output products, etc.)
+;; * Create a keybind to bring the buffer back to the foreground after user
+;;   hits `q'
+;; * Possibly create a keybind for dismissing the buffer as if the user
+;;   moved to the inspection buffer and pressed `q' because the point is
+;;   actually in the parent buffer for operations.
+
+;;; Code
 
 ;;;; Variables
+
 ;; Local variables for inspection behavior set up per parent buffer.
 (defvar-local hexl-inspect--big-endian-p nil
   "The boolean variable HEXL-INSPECT--BIG-ENDIAN-P is used to set
@@ -86,6 +98,7 @@ data inspection results.")
 (defvar hexl-inspect-mode)
 
 ;;;; Functions
+
 ;; This function toggles the state of the endianness
 (defun hexl-inspect-toggle-endian ()
   "Alters the contents of the endianness variables."
