@@ -82,7 +82,7 @@
 
 ;;;; Variables
 
-;; Local variables for inspection behavior set up per parent buffer.
+;; Local variables to the parent buffer
 (defvar-local hexl-inspect--big-endian-p nil
   "The boolean variable HEXL-INSPECT--BIG-ENDIAN-P is used to set
 the endianness for hexl-inspect.")
@@ -95,7 +95,13 @@ data inspection results.")
 (defvar-local hexl-inspect--inspection-refresh-timer nil
   "Timer for refreshing the display buffer.")
 
-(defvar hexl-inspect-mode)
+;; Global variables
+(defvar hexl-inspect-mode nil 
+  "The boolean variable HEXL-INSPECT-MODE contains the state of 
+the minor mode for HEXL-INSPECT")
+(defvar hexl-inspect--data-buf-window nil
+  "HEXL-INSPECT--DATA-BUF-WINDOW holds the window object used
+by the inspection data buffer.")
 
 ;;;; Functions
 
@@ -320,8 +326,13 @@ Structure heavily borrowed from `treesit-explore-mode' in
           (setq-local hexl-inspect--data-buf (get-buffer-create (format "*hexl data inspection for %s*" (buffer-name))))
           (with-current-buffer hexl-inspect--data-buf
             (hexl-inspect--inspecting-mode)))
-        (display-buffer hexl-inspect--data-buf
-                        (cons nil '((inhibit-same-window . t))))
+        ;; The window parameters argument is constructed as a cons cell with the
+        ;; first element being a window display function, and the second element
+        ;; being a list of cons cells of window properties.  Since we don't
+        ;; really care which window display funciton is used, that element is
+        ;; nil, so Emacs may choose the one that best suits the situation.
+        (setq hexl-inspect--data-buf-window (display-buffer hexl-inspect--data-buf
+                        (cons nil '((inhibit-same-window . t)))))
         (hexl-inspect--inspection-refresh)
         ;; Setting up variables and hooks
         (setq-local hexl-inspect--big-endian-p nil)
@@ -340,7 +351,7 @@ Structure heavily borrowed from `treesit-explore-mode' in
     ;; Actions when deasserting hexl-inspect-mode
     (remove-hook 'post-command-hook
                  #'hexl-inspect--inspecting-post-command t)
-    (remove-hook 'post-command-hook
+    (remove-hook 'kill-buffer-hook
                  #'hexl-inspect--kill-inspection-buffer t)
     ;; Destroy buffer
     (hexl-inspect--kill-inspection-buffer)))
