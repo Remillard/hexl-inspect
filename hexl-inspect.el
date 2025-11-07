@@ -377,18 +377,26 @@ Returns a string with format: │ CONTENT [padding] │"
 (define-minor-mode hexl-inspect-mode
   "Toggle the Hexl Data Inspection Mode.
 
-Interatively with no argument, this command toggles the mode.  A
-positive prefix argument enables the mode, any other prefix
-argument disables it.  From Lisp, argument omitted or nil enables
-the mode.  `toggle' toggles the state.
+Interatively with no argument, this command toggles the mode. A positive
+prefix argument enables the mode, any other prefix argument disables it.
+From Lisp, argument omitted or nil enables the mode. `toggle' toggles
+the state.
 
-When Hexl Data Inspection Mode is enabled, for buffers where
-`hexl-mode' is set, this mode will create a data inspection panel
-detailing many parameters about the values at the point in the
-`hexl-mode' buffer and will update as the point is moved.
+When Hexl Data Inspection Mode is enabled, for buffers where `hexl-mode'
+is set, this mode will create a data inspection side panel showing
+various interpretations of the data at point: hexadecimal, binary,
+signed/unsigned integers of various widths, and ASCII character
+representations. `hexl-mode' buffer and will update as the point is
+moved.
 
-Structure heavily borrowed from `treesit-explore-mode' in
-`treesit.el'"
+The display updates automatically as the point is moved in the parent
+`hexl-mode' buffer.
+
+Endianness can be toggled with \\[hexl-inspect-toggle-endian].
+
+Version may be displayed with \\[hexl-inspect-version].
+
+Structure heavily influenced by `treesit-explore-mode' in `treesit.el'"
   :init-value nil
   :lighter " Inspection"
   :keymap
