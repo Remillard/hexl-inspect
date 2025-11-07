@@ -49,63 +49,61 @@ It may be useful to add a keybind to ~hexl-mode~ to activate the data inspection
 
 | Keybind | Function                                       |
 | ~C-c h~   | Toggles the endianness of the data inspection. |
+| ~C-c v~   | Prints the current version number              |
 
 ** Using hexl-inspect
 
-It should be as easy as activating the mode and moving the point around.  A buffer
-will appear alongside the ~hexl-mode~ buffer with the following contents (as a sample).
-The endian mode will change when toggled via ~C-c h~.
+It should be as easy as activating the mode and moving the point around. A
+buffer will appear alongside the ~hexl-mode~ buffer with the following contents
+(as a sample). The endian mode will change when toggled via ~C-c h~. Unprintable
+characters will be replaced with a period character (the previous escape code
+display was not working well.)
 
 #+begin_example
--------------------- Data Inspection -------------------
---------------------  Little endian  -------------------
-Byte (Hex):           0x48
-Byte (Binary):        0b01001000
-uint8:                72
-int8:                 72
-char:                 H
+┌──────────────────────────────────────────────────────────┐
+│            Data Inspection Mode: Big Endian              │
+├──────────────────────────────────────────────────────────┤
+│                   Address: 0x00000000                    │
+└──────────────────────────────────────────────────────────┘
+ Byte (Hex):           0xff
+ Byte (Binary):        0b11111111
+ uint8:                255
+ int8:                 -1
+ char:                 .
 
-16-bit word (Hex):    0x4348
-16-bit word (Binary): 0b0100001101001000
-uint16:               17224
-int16:                17224
-chars:                CH
+ 16-bit word (Hex):    0xff75
+ 16-bit word (Binary): 0b1111111101110101
+ uint16:               65397
+ int16:                -139
+ chars:                .u
 
-32-bit word (Hex):    0x43594348
-32-bit word (Binary): 0b01000011010110010100001101001000
-uint32:               1129923400
-int32:                1129923400
+ 32-bit word (Hex):    0xff75ff7e
+ 32-bit word (Binary): 0b11111111011101011111111101111110
+ uint32:               4285923198
+ int32:                -9044098
+ chars:                .u.~
 
-
-64-bit word (Hex):    0x000f424143594348
-uint64:               4294972720890696
-int64:                4294972720890696
---------------------------------------------------------
+ 64-bit word (Hex):    0xff75ff7eff78ff91
+ uint64:               18407899972863852433
+ int64:                -38844100845699183
 #+end_example
 
 * Change Log
 
-| Version | Description                            |
-| 0.1-pre | Initial release with various clean up. |
+| Version | Description                                          |
+| 0.1-pre | Initial release with various clean up.               |
+| 0.2-pre | Better window management and safer boundary behavior |
+| 0.3-pre | Aesthetic improvements, address display, etc.        |
 
 * Development
 
-** To Do List [2/5]
+** TODO To Do List [2/5]
 
 At the moment, this suits my needs fairly well.  I suspect before it's released
 for general consumption some additional safety measures may need to be added.
-It's also not wildly aesthetically appealing so that might be something to think
-about.  I welcome suggestions on how to improve the module.
 
 Current things to address:
-- [X] Does not compile cleanly.  Investigate compilation and address
-  warnings/errors
-- [ ] Implement more customizable parameters (timer, output products, etc.)
-- [ ] Create keybind to bring the buffer back after a user hits ~q~.
-- [ ] Possibly create a keybind for dismissing the buffer like ~q~ because the
-  point is actually in the parent buffer for operations.
-- [X] Detect when the point was placed on the second nibble of an address and
-  account for that when performing the character acquisition (foolproofing)
+- [ ] Possible further aesthetic improvements vis a vis large binary and hex numbers.
 
 * License
 
