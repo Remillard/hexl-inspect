@@ -4,7 +4,7 @@
 
 ;; Author: Mark Norton <remillard@gmail.com>
 ;; URL: https://github.com/Remillard/hexl-inspect
-;; Version: 0.3-pre
+;; Version: 0.4-pre
 ;; Keywords: hexl, data
 
 ;; This file is not part of GNU Emacs.
