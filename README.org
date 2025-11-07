@@ -94,6 +94,7 @@ display was not working well.)
 | 0.1-pre | Initial release with various clean up.               |
 | 0.2-pre | Better window management and safer boundary behavior |
 | 0.3-pre | Aesthetic improvements, address display, etc.        |
+| 0.4-pre | Result of ~checkdoc~ analysis                         |
 
 * Development
 

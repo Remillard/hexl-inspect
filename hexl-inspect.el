@@ -64,6 +64,7 @@
 
 ;; Keybind     Function
 ;; C-c h       Toggles the endianness of the data inspection
+;; C-c v       Displays version information in the minibuffer
 
 ;;; Change log
 
@@ -71,25 +72,16 @@
 ;; 0.2-pre    Refinement with window layout saving and better
 ;;            behavior around EOF.
 ;; 0.3-pre    Aesthetic changes
+;; 0.4-pre    Checkdoc updates
 
-;;;; TODO 
-
-;; * Implement more customizable parameters (timer, output products, etc.)
-;; * Create a keybind to bring the buffer back to the foreground after user
-;;   hits `q'
-;; * Possibly create a keybind for dismissing the buffer as if the user
-;;   moved to the inspection buffer and pressed `q' because the point is
-;;   actually in the parent buffer for operations.
-
-;;; Code
+;;; Code:
 
 (require 'hexl)
 
 ;;;; Constants
 
-(defconst hexl-inspect-version-str "0.3-pre"
-  "The HEXL-INSPECT-VERSION-STR constant string is used to display the
-current version in the minibuffer.")
+(defconst hexl-inspect-version-str "0.4-pre"
+  "Version string for hexl-inspect package.")
 
 (defconst hexl-inspect--box-top "┌──────────────────────────────────────────────────────────┐"
   "Top border for inspection display.")
@@ -111,30 +103,31 @@ current version in the minibuffer.")
 ;; Customizable variables
 
 (defgroup hexl-inspect nil
-  "Data inspection for hexl-mode buffers."
+  "Data inspection for `hexl-mode' buffers."
   :group 'data
   :prefix "hexl-inspect-")
 
 ;; Local variables to the parent buffer
 
 (defvar-local hexl-inspect--big-endian-p nil
-  "The boolean variable HEXL-INSPECT--BIG-ENDIAN-P is used to set
-the endianness for hexl-inspect.")
+  "Boolean indicating the endian mode used.
+Non-nil means data is interpreted big-endian arrangement.
+Nil means data is interpreted little-endian arrangement.")
+
 (defvar-local hexl-inspect--endian-str nil
-  "The string variable HEXL-INSPECT--ENDIAN-STR is used for the
-hexl-inspect display.")
+  "String containing text for the current endian mode.")
+
 (defvar-local hexl-inspect--parent-buffer nil
-  "HEXL-INSPECT--PARENT-BUFFER is the buffer that is being
-inspected.")
+  "Handle to the buffer in `hexl-mode' being inspected.")
+
 (defvar-local hexl-inspect--data-buf nil
-  "HEXL-INSPECT--DATA-BUF defines the buffer used to display the
-data inspection results.")
+  "Handle to the buffer that is used to display results.")
+
 (defvar-local hexl-inspect--data-buf-window nil
-  "HEXL-INSPECT--DATA-BUF-WINDOW holds the window object used
-by the inspection data buffer.")
+  "Handle to the window that is used for displaying results.")
+
 (defvar-local hexl-inspect--saved-window-config nil
-  "HEXL-INSPECT--SAVED-WINDOW-CONFIG holds the current window configuration
-before excursion.")
+  "Handle to initial window configuration before minor-mode enabled.")
 
 ;;;; Functions
 
@@ -153,10 +146,9 @@ before excursion.")
 ;; want to deconstruct for inspection at any one time.  Intended to be called in
 ;; the hexl-mode buffer.
 (defun hexl-inspect--get-hex-str (big-endian-p)
-  "Returns a hexadecimal string of 8 bytes with specified endian-ness
-in the boolean BIG-ENDIAN-P.  BIG-ENDIAN-P truth will result in a
-big-endian interpretation.  BIG-ENDIAN-P nil will result in a
-little-endian interpretation."
+  "Return a string representing hex at the specified endianness.
+BIG-ENDIAN-P nil will result in a little-endian interpretation.
+BIG-ENDIAN-P non-nil will result in a big-endian interpretation."
   (save-excursion
     ;; Predefining small string to fill in rather than continue creating new
     ;; strings with the acquisition of every concatenation (prior method).
@@ -187,8 +179,9 @@ little-endian interpretation."
 ;; based on the number of nibbles desired and the endianness the string
 ;; represents.
 (defun hexl-inspect--word-str (64bit-word-str nibbles big-endian-p)
-  "Based on the boolean BIG-ENDIAN-P defining the current endianness,
-return a string of the number of NIBBLES from 64BIT-WORD-STR."
+  "Return a hex string of NIBBLES size from 64BIT-WORD-STR.
+BIG-ENDIAN-P nil will result in a little-endian interpretation.
+BIG-ENDIAN-P non-nil will result in a big-endian interpretation."
   (if big-endian-p
       (substring 64bit-word-str 0 nibbles)
     (substring 64bit-word-str (- 16 nibbles) nil)))
@@ -196,8 +189,7 @@ return a string of the number of NIBBLES from 64BIT-WORD-STR."
 ;; Given an unsigned integer value at a particular width, return the signed
 ;; two's complement value of that value.
 (defun hexl-inspect--twos-complement (number bit-width)
-  "Return the two's complement interpretation of NUMBER with given
-BIT-WIDTH, if applicable."
+  "Return 2's complement interpretation of NUMBER at BIT-WIDTH."
   (let* ((max-value (expt 2 bit-width))
          (half-max (/ max-value 2)))
     (if (>= number half-max)
@@ -207,8 +199,7 @@ BIT-WIDTH, if applicable."
 ;; Converting a nibble character to a binary string is a helper function to
 ;; hexl-hex-str-to-bin.
 (defun hexl-inspect--nibble-str-to-bin (nib-char)
-  "Return a string containing the binary representation of the hex
-nibbled NIB-CHAR."
+  "Return string containing the binary representation of NIB-CHAR."
   (pcase nib-char
     ('?0 "0000")
     ('?1 "0001")
@@ -231,8 +222,7 @@ nibbled NIB-CHAR."
 ;; Receives a string of some arbitrary length comprised of hex characters and
 ;; returns a string that contains the binary representation of the hex value.
 (defun hexl-inspect--hex-str-to-bin (hex-str)
-  "Return a string containing the binary representation of the
-hexadecimal string HEX-STR."
+  "Return string containing the binary representation of HEX-STR."
   (let* ((bin-str-len (* 4 (length hex-str)))
          ;; Predefining string length in order to avoid multiple string creations.
          (bin-str (make-string bin-str-len ?0)))
@@ -245,11 +235,12 @@ hexadecimal string HEX-STR."
 ;; in the `dotimes' function.  Not entirely sure why it thought it wasn't
 ;; used, but this dodges that warning.
 (defun hexl-inspect--decode-hex-string (hex-string)
-  "Return a string of characters corresponding to the hex bytes in
-HEX-STRING.  For example, hex string `43484950' would return
-`CHIP'.  Will assume an even number of characters in the string,
-and if odd will fail to address the odd ending character.
-Unprintable characters will be replaced with periods."
+  "Return printable character string from HEX-STRING.
+
+For example, hex string `43484950' would return `CHIP'. Will assume an
+even number of characters in the string, and if odd will fail to address
+the odd ending character. Unprintable characters will be replaced with
+periods."
   (let* ((num-chars (/ (length hex-string) 2))
          (result-str (make-string num-chars ?.)))
     (dotimes (i num-chars)
@@ -293,7 +284,7 @@ Returns a string with format: │ CONTENT [padding] │"
 ;; This is the ongoing buffer refresh version of the original inspection
 ;; command.
 (defun hexl-inspect--inspection-refresh ()
-  "Updates the hexl inspection buffer."
+  "Update the hexl inspection buffer."
   (when (and hexl-inspect-mode
              (buffer-live-p hexl-inspect--parent-buffer)
              (buffer-live-p hexl-inspect--data-buf))
@@ -361,7 +352,7 @@ Returns a string with format: │ CONTENT [padding] │"
 
 ;; Causes the information to update immediately without a timer.
 (defun hexl-inspect--inspecting-post-command (&rest _)
-  "Post-command function that runs in the source buffer."
+  "Post-command inspection refresh will run in the parent buffer."
   (when hexl-inspect-mode
     (hexl-inspect--inspection-refresh)))
 
@@ -384,16 +375,17 @@ Returns a string with format: │ CONTENT [padding] │"
 ;; behaviors should occur (like updating the inspection panel.)
 ;;;###autoload
 (define-minor-mode hexl-inspect-mode
-  "Toggle Hexl Data Inspection Mode
+  "Toggle the Hexl Data Inspection Mode.
+
 Interatively with no argument, this command toggles the mode.  A
 positive prefix argument enables the mode, any other prefix
 argument disables it.  From Lisp, argument omitted or nil enables
 the mode.  `toggle' toggles the state.
 
 When Hexl Data Inspection Mode is enabled, for buffers where
-hexl-mode is set, this mode will create a data inspection panel
+`hexl-mode' is set, this mode will create a data inspection panel
 detailing many parameters about the values at the point in the
-hexl-mode buffer and will update as the point is moved.
+`hexl-mode' buffer and will update as the point is moved.
 
 Structure heavily borrowed from `treesit-explore-mode' in
 `treesit.el'"
