@@ -97,7 +97,7 @@ display was not working well.)
 
 * Development
 
-** TODO To Do List [2/5]
+** TODO Things to Consider [0/1]
 
 At the moment, this suits my needs fairly well.  I suspect before it's released
 for general consumption some additional safety measures may need to be added.
